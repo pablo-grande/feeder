@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<meta charset="utf-8">
+	<meta name="viewport">
+	<title>{{ context.episode.tvshow }}</title>
+</head>
+
+<body onkeypress="checkKey(event)">
+
+	<section>
+
+    {% if context.wait %}
+
+    <audio autoplay loop>
+        <source src="static/wait.mp3" type="audio/mpeg">
+    </audio>
+    <h3>Next:</h3>
+    <h2>{{ context.episode.tvshow }}</h2>
+
+    <input name="wait" type="hidden" value="{{ context.wait }}" readonly/>
+
+    {% else %}
+
+    <!--
+        <video autoplay class="afterglow" id="video" data-autoclose="true" width="1920" height="1080">
+            <source src="static/video/{{ context.episode.filename }}" type="video/mp4">
+        </video>
+    -->
+    <video autoplay width="1920" height="1080">
+        <source src="static/video/{{ context.episode.filename }}" type="video/mp4">
+    </video>
+
+    <input name="offset" type="hidden" value="{{ context.offset }}"  readonly/>
+
+    {% endif %}
+
+	</section>
+
+</body>
+
+<script>
+
+        var video = document.getElementByTagName("video")[0];
+        if (video){
+
+            function checkKey(key){
+                //check if key was F or f
+                if (key.which == 70 || key.which == 102)
+                    //afterglow.getPlayer("video").requestFullscreen();
+                    video.requestFullscreen();
+            }
+
+            var offset = document.getElementsByName("offset")[0];
+            if (offset){
+                offset_value = parseFloat(offset.value);
+                console.log(offset_value);
+                if (offset_value > 0){
+                    video.currentTime = offset_value;
+                    video.play();
+                }
+            }
+
+            video.addEventListener('ended', function(){ location = '' }, false);
+        }
+
+        var audio = document.getElementsByTagName("audio")[0];
+        if (audio) {
+            audio.currentTime = 77;
+            var body = document.getElementsByTagName("body")[0];
+            body.classList.add("wait");
+
+            var wait = document.getElementsByName("wait")[0];
+            if (wait) {
+                wait_time = parseFloat(wait.value);
+                console.log("w: " + wait_time);
+                window.setTimeout(function(){ location = '' }, wait_time * 1000);
+            }
+        }
+
+</script>
+
+<style type='text/css'>
+
+	body {
+		background-color: black;
+	}
+
+	@font-face {
+		font-family: 'Goudy';
+		src: url('static/Goudy-Heavyface.otf');
+	}
+
+	 h2, h3 {
+		font-family: 'Goudy';
+		color: white;
+	 }
+
+	 h3{
+		 font-weight: bold;
+		 font-size: 70px;
+	 }
+
+	 h2 {
+		 font-size: 110px;
+	 }
+
+	@-webkit-keyframes rainbow {
+	  14% { background-color: blue; }
+	  28% { background-color: indigo; }
+	  42% { background-color: violet; }
+	  56% { background-color: red; }
+	  70% { background-color: orange; }
+	  84% { background-color: yellow; }
+	}
+
+	.wait {
+	  -webkit-animation: rainbow 2s infinite;
+	  background-color: green;
+	}
+
+	.wait > section {
+		margin-left: 50px;
+	}
+
+	video {
+		width: 100%    !important;
+		height: auto   !important;
+	}
+
+</style>
+</html>
+
