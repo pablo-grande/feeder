@@ -48,10 +48,11 @@ class Media:
 
     @classmethod
     def pick(cls, timeframe=None):
-        if not timeframe:
-            timeframe = now('%Y-%m-%d %H:%M:%S')
-        order_by = f"ORDER BY abs(strftime('%s', '{timeframe}') - strftime('%s', scheduled))"
-        query = f"SELECT * FROM {cls.__name__} {order_by} LIMIT 1;"
+        if timeframe:
+            order_by = f"abs(strftime('%s', '{timeframe}') - strftime('%s', scheduled))"
+        else:
+            order_by = "RANDOM()"
+        query = f"SELECT * FROM {cls.__name__} ORDER BY {order_by} LIMIT 1;"
         with DBConnection() as db:
             db.cursor.execute(query)
             db_result = db.cursor.fetchone()

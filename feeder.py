@@ -22,6 +22,7 @@ def random_tv():
         else:
             context['wait'] = time_diff
 
+    print("About to show", context['episode'])
     return render_template("index.html", context=context)
 
 

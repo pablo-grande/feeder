@@ -38,9 +38,10 @@ def supply(media_dir):
 
     for root, _, files in walk(media_dir):
         for _file in files:
-            media_info = get_info(f'{root}/{_file}')
+            full_name = f'{root}/{_file}'
+            media_info = get_info(full_name)
             if media_info:
-                m = Media(filename=_file, **media_info)
+                m = Media(filename=full_name, **media_info)
                 m.save()
                 results.append(m)
 

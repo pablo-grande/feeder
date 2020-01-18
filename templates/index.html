@@ -24,7 +24,7 @@
 		{% else %}
 
 		<video autoplay="autoplay" width="1920" height="1080" muted="muted">
-			<source src="static/video/{{ context.episode }}" type="video/mp4">
+			<source src="{{ context.episode }}" type="video/mp4">
 		</video>
 
 		<input name="offset" type="hidden" value="{{ context.offset }}" readonly/>
