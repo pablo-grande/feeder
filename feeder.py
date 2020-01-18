@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 from datetime import datetime
-from db import Episode, now
+from db import Media, now
 
 
 application = Flask(__name__)
@@ -8,21 +8,20 @@ application = Flask(__name__)
 
 @application.route("/")
 def random_tv():
-    episode = Episode.pick()
-    context = {}
+    episode = Media.pick()
+    context = {
+        'episode': episode.filename,
+        'wait': 0.0,
+        'offset': 0.0
+    }
 
-    offset = (now() - episode.scheduled).total_seconds()
-    if offset > 0:
-        if offset < episode.duration:
-            context['offset'] = offset
+    if episode.scheduled:
+        time_diff = abs(int((now() - episode.scheduled).total_seconds()))
+        if time_diff < episode.duration:
+            context['offset'] = time_diff
         else:
-            episode = episode.next()
-            offset = (now() - episode.scheduled).total_seconds()
-            context['wait'] = offset
-    else:
-        context['wait'] = abs(offset)
+            context['wait'] = time_diff
 
-    context['episode'] = episode
     return render_template("index.html", context=context)
 
 

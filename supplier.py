@@ -1,41 +1,53 @@
 import subprocess
-import os
-from db import Episode
-from sys import exit
+from os import walk
+from db import Media
+from sys import argv
 
 
-def get_length(video):
-    #result = subprocess.Popen(['ffprobe -i %s -show_entries format=duration -v quiet -of csv="p=0"' % video], stdout=subprocess.PIPE,stderr=subprocess.STDOUT, shell=True)
-    result = subprocess.Popen(['ffprobe -i \"{}\" -show_entries format=duration -v quiet -of csv="p=0"'.format(video)], stdout=subprocess.PIPE,stderr=subprocess.STDOUT, shell=True)
-    output = result.communicate()
-    return float(output[0])
-
-
-def get_episode_info(filename):
-    episode_info = {}
+def get_info(filename):
+    media_info = {}
+    ffprobe = f'ffprobe -i \"{filename}\" -show_entries format=duration:stream=codec_type -v quiet -of compact=nokey=1'
     try:
-        episode_info['duration'] = get_length(filename)
-    except ValueError as e:
-        print(e, filename)
-    episode_info['tvshow'] = filename.split('/')[-2]
-    return episode_info
+        result = subprocess.Popen([ffprobe], stdout=subprocess.PIPE,stderr=subprocess.STDOUT, shell=True)
+        output = result.communicate()[0].decode('utf-8')
+
+        # a video has both video and audio codecs separated by line break
+        file_data = {'streams': set(), 'duration': 0.0}
+        for data in [e for e in output.split('\n') if e]:
+            k, v = data.split('|')
+            if k == 'stream':
+                file_data['streams'].add(v)
+            elif k == 'format':
+                if v != 'N/A':
+                    file_data['duration'] = float(v)
+
+        a_movie = {'audio', 'video'}
+        if a_movie.issubset(file_data['streams']) and file_data['duration'] > 0.0:
+            media_info['duration'] = file_data['duration']
+        return media_info
+
+    except (ValueError, KeyError) as e:
+        print(filename, e)
 
 
-def supply(path):
+def supply(media_dir):
     """Given a dirname gets all needed information from video files
     and stores it
     """
-    if os.path.isfile(path):
-        e = Episode(episode, **get_episode_info(path))
-        e.save()
-        
     results = []
-    for root, _, episodes in os.walk(path):
-        for episode in episodes:
-            e = Episode(episode, **get_episode_info(root + '/' + episode))
-            e.save()
-            results.append(e)
+
+    for root, _, files in walk(media_dir):
+        for _file in files:
+            media_info = get_info(f'{root}/{_file}')
+            if media_info:
+                m = Media(filename=_file, **media_info)
+                m.save()
+                results.append(m)
 
     return results
 
+
+if __name__ == '__main__':
+    if len(argv) == 2:
+        supply(argv[1:].pop())
 
