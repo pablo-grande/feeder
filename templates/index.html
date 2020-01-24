@@ -12,12 +12,14 @@
 
 		% if context['wait']:
 
+		<!--
 		<audio autoplay loop>
 			<source src="static/wait.mp3" type="audio/mpeg">
 		</audio>
+		-->
 
 		<h3>Next:</h3>
-		<h2>{{ context['episode'] }}</h2>
+		<h2>{{ context['episode'].split('/')[-1] }}</h2>
 
 		<input name="wait" type="hidden" value="{{ context['wait'] }}" readonly/>
 
@@ -68,21 +70,18 @@ if (video){
 			video_promise.catch(function(error) { console.log(error) });
 		}
 	}
-}
-
-var audio = document.getElementsByTagName("audio")[0];
-if (audio) {
-	audio.currentTime = 77;
+} else {
 	var body = document.getElementsByTagName("body")[0];
 	body.classList.add('wait');
-
+	let wait_time = 1;
 	var wait = document.getElementsByName("wait")[0];
 	if (wait.value) {
 		wait_time = parseFloat(wait.value);
 		console.log("w: " +wait_time);
-		window.setTimeout(function(){ location = '' },wait_time * 1000);
 	}
+	window.setTimeout(function(){ location = '' },wait_time * 1000);
 }
+
 
 </script>
 
