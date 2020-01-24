@@ -3,33 +3,33 @@
 <head lang="en">
 	<meta charset="utf-8">
 	<meta name="viewport">
-	<title>{{ context.episode.tvshow }}</title>
+	<title>Feeder</title>
 </head>
 
 <body onkeypress="checkKey(event)" onclick="unmute()">
 
 	<section>
 
-		{% if context.wait %}
+		% if context['wait']:
 
 		<audio autoplay loop>
 			<source src="static/wait.mp3" type="audio/mpeg">
 		</audio>
 
 		<h3>Next:</h3>
-		<h2>{{ context.episode.tvshow }}</h2>
+		<h2>{{ context['episode'] }}</h2>
 
-		<input name="wait" type="hidden" value="{{ context.wait }}" readonly/>
+		<input name="wait" type="hidden" value="{{ context['wait'] }}" readonly/>
 
-		{% else %}
+		% else: 
 
 		<video autoplay="autoplay" width="1920" height="1080" muted="muted">
-			<source src="{{ context.episode }}" type="video/mp4">
+			<source src="{{ context['episode'] }}" type="video/mp4">
 		</video>
 
-		<input name="offset" type="hidden" value="{{ context.offset }}" readonly/>
+		<input name="offset" type="hidden" value="{{ context['offset'] }}" readonly/>
 
-		{% endif %}
+		% end
 
 	</section>
 
@@ -74,13 +74,13 @@ var audio = document.getElementsByTagName("audio")[0];
 if (audio) {
 	audio.currentTime = 77;
 	var body = document.getElementsByTagName("body")[0];
-	body.classList.add("wait");
+	body.classList.add('wait');
 
 	var wait = document.getElementsByName("wait")[0];
 	if (wait.value) {
 		wait_time = parseFloat(wait.value);
-		console.log("w: " + wait_time);
-		window.setTimeout(function(){ location = '' }, wait_time * 1000);
+		console.log("w: " +wait_time);
+		window.setTimeout(function(){ location = '' },wait_time * 1000);
 	}
 }
 

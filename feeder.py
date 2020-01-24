@@ -1,12 +1,14 @@
-from flask import Flask, render_template
+from bottle import get, run, template, static_file
 from datetime import datetime
 from db import Media, now
 
 
-application = Flask(__name__)
+@get('/static/:path#.+#', name='static')
+def static(path):
+    return static_file(path, root='static/')
 
 
-@application.route("/")
+@get("/")
 def random_tv():
     episode = Media.pick()
     context = {
@@ -22,10 +24,9 @@ def random_tv():
         else:
             context['wait'] = time_diff
 
-    print("About to show", context['episode'])
-    return render_template("index.html", context=context)
+    return template("templates/index.html", context=context)
 
 
 if __name__ == '__main__':
-    application.run(host='0.0.0.0')
+    run(host='localhost', port=8080, debug=True)
 
